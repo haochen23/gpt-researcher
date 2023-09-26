@@ -25,7 +25,7 @@ The main idea is to run "planner" and "execution" agents, whereas the planner ge
 </div>
 
 
-More specifcally:
+More specifically:
 * Generate a set of research questions that together form an objective opinion on any given task. 
 * For each research question, trigger a crawler agent that scrapes online resources for information relevant to the given task.
 * For each scraped resources, summarize based on relevant information and keep track of its sources.
@@ -72,7 +72,7 @@ $ pip install -r requirements.txt
 $ export OPENAI_API_KEY={Your API Key here}
 ```
 
-- **By default we use OpenAI, but you can use any other LLM model (including open sources)** supported by [Langchain Adapter](https://python.langchain.com/docs/guides/adapters/openai), simply change the model name in config/config.py and provider in agent/llm_utils.py file. Follow [this guide](https://python.langchain.com/docs/integrations/llms/) to learn how to integrate LLMs with Langchain. 
+- **By default, we use OpenAI, but you can use any other LLM model (including open sources)** supported by [Langchain Adapter](https://python.langchain.com/docs/guides/adapters/openai), simply change the llm model and provider in config/config.py. Follow [this guide](https://python.langchain.com/docs/integrations/llms/) to learn how to integrate LLMs with Langchain. 
 - **We highly recommend using GPT models for optimal performance.**
 
 <br />
@@ -117,31 +117,9 @@ Please check out our [roadmap](https://trello.com/b/3O7KBePw/gpt-researcher-road
 
 
 ## 🔧 Troubleshooting
-We're constantly working to provide a more stable version. In the meantime, see here for known issues:
+We're constantly working to provide a more stable version. If you're running into any issues, please first check out the resolved issues or ask us via our [Discord community](https://discord.gg/2pFkc83fRq).
 
-**model: gpt-4 does not exist**
-This relates to not having permission to use gpt-4 yet. Based on OpenAI, it will be [widely available for all by end of July](https://help.openai.com/en/articles/7102672-how-can-i-access-gpt-4).
-
-**cannot load library 'gobject-2.0-0'**
-
-The issue relates to the library WeasyPrint (which is used to generate PDFs from the research report). Please follow this guide to resolve it: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html
-
-**Error processing the url**
-
-We're using [Selenium](https://www.selenium.dev) for site scraping. Some sites fail to be scraped. In these cases, restart and try running again.
-
-
-**Chrome version issues**
-
-Many users have an issue with their chromedriver because the latest chrome browser version doesn't have a compatible chrome driver yet.
-
-To downgrade your Chrome web browser using [slimjet](https://www.slimjet.com/chrome/google-chrome-old-version.php), follow these steps. First, visit the website and scroll down to find the list of available older Chrome versions. Choose the version you wish to install
-making sure it's compatible with your operating system.
-Once you've selected the desired version, click on the corresponding link to download the installer. Before proceeding with the installation, it's crucial to uninstall your current version of Chrome to avoid conflicts.
-
-It's important to check if the version you downgrade to, has a chromedriver available in the official [chrome driver website](https://chromedriver.chromium.org/downloads)
-
-**If none of the above work, you can [try out our hosted beta](https://app.tavily.com)**
+**If none of the above work for you, you can [try out our hosted beta](https://app.tavily.com)**
 
 ## 🛡 Disclaimer
 

@@ -104,7 +104,7 @@ async def stream_response(model, messages, temperature, max_tokens, websocket):
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
-            provider="ChatOpenAI",
+            provider=CFG.llm_provider,
             stream=True,
         ):
             content = chunk["choices"][0].get("delta", {}).get("content")
