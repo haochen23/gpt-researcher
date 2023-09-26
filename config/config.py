@@ -28,6 +28,8 @@ class Config(metaclass=Singleton):
         self.browse_chunk_max_length = int(os.getenv("BROWSE_CHUNK_MAX_LENGTH", 8192))
 
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.openai_api_base = os.getenv("OPENAI_API_BASE")
+        self.openai_api_version = os.getenv("OPENAI_API_VERSION")
         self.temperature = float(os.getenv("TEMPERATURE", "1"))
 
         self.user_agent = os.getenv(
@@ -39,6 +41,9 @@ class Config(metaclass=Singleton):
         self.memory_backend = os.getenv("MEMORY_BACKEND", "local")
         # Initialize the OpenAI API client
         openai.api_key = self.openai_api_key
+        if self.openai_api_base:
+            openai.api_base = self.openai_api_base
+            openai.api_version = os.getenv("OPENAI_API_VERSION", "2023-07-01-preview")
 
     def set_fast_llm_model(self, value: str) -> None:
         """Set the fast LLM model value."""

@@ -45,7 +45,7 @@ async def async_browse(url: str, question: str, websocket: WebSocket) -> str:
         str: The answer and links to the user
     """
     loop = asyncio.get_event_loop()
-    executor = ThreadPoolExecutor(max_workers=8)
+    executor = ThreadPoolExecutor(max_workers=2)
 
     print(f"Scraping url {url} with question {question}")
     await websocket.send_json(

@@ -17,10 +17,15 @@ from config import Config
 from agent import prompts
 import os
 import string
+import openai
 
 
 CFG = Config()
 
+openai.api_key = CFG.openai_api_key
+if CFG.openai_api_base:
+    openai.api_base = CFG.openai_api_base
+    openai.api_version = CFG.openai_api_version
 
 class ResearchAgent:
     def __init__(self, question, agent, agent_role_prompt, websocket):
@@ -77,6 +82,7 @@ class ResearchAgent:
             "role": "user",
             "content": action,
         }]
+        
         answer = create_chat_completion(
             model=CFG.smart_llm_model,
             messages=messages,

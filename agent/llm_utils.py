@@ -4,6 +4,7 @@ import json
 
 from fastapi import WebSocket
 import time
+import tenacity
 
 import openai
 from langchain.adapters import openai as lc_openai
@@ -16,6 +17,9 @@ from config import Config
 CFG = Config()
 
 openai.api_key = CFG.openai_api_key
+if CFG.openai_api_base:
+    openai.api_base = CFG.openai_api_base
+    openai.api_version = CFG.openai_api_version
 
 from typing import Optional
 import logging
@@ -57,18 +61,33 @@ def create_chat_completion(
     logging.error("Failed to get response from OpenAI API")
     raise RuntimeError("Failed to get response from OpenAI API")
 
-
+@tenacity.retry(
+        wait=tenacity.wait_exponential(multiplier=1, min=4, max=10),
+        stop=tenacity.stop_after_attempt(5),
+        reraise=True,
+    )
 def send_chat_completion_request(
     messages, model, temperature, max_tokens, stream, websocket
 ):
     if not stream:
-        result = lc_openai.ChatCompletion.create(
-            model=model, # Change model here to use different models
-            messages=messages,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            provider="ChatOpenAI", # Change provider here to use a different API
-        )
+        if not CFG.openai_api_base:
+            result = lc_openai.ChatCompletion.create(
+                model=model, # Change model here to use different models
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                provider="ChatOpenAI", # Change provider here to use a different API
+            )
+        else:
+            result = lc_openai.ChatCompletion.create(
+                # model=model, # Change model here to use different models
+                deployment_name=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                provider="AzureChatOpenAI", # Change provider here to use a different API
+            )
+        
         return result["choices"][0]["message"]["content"]
     else:
         return stream_response(model, messages, temperature, max_tokens, websocket)
@@ -79,21 +98,39 @@ async def stream_response(model, messages, temperature, max_tokens, websocket):
     response = ""
     print(f"streaming response...")
 
-    for chunk in lc_openai.ChatCompletion.create(
+    if not CFG.openai_api_base:
+        for chunk in lc_openai.ChatCompletion.create(
             model=model,
             messages=messages,
             temperature=temperature,
             max_tokens=max_tokens,
             provider="ChatOpenAI",
             stream=True,
-    ):
-        content = chunk["choices"][0].get("delta", {}).get("content")
-        if content is not None:
-            response += content
-            paragraph += content
-            if "\n" in paragraph:
-                await websocket.send_json({"type": "report", "output": paragraph})
-                paragraph = ""
+        ):
+            content = chunk["choices"][0].get("delta", {}).get("content")
+            if content is not None:
+                response += content
+                paragraph += content
+                if "\n" in paragraph:
+                    await websocket.send_json({"type": "report", "output": paragraph})
+                    paragraph = ""
+    else:
+        for chunk in lc_openai.ChatCompletion.create(
+            deployment_name=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            provider="AzureChatOpenAI",
+            stream=True,
+        ):
+            content = chunk["choices"][0].get("delta", {}).get("content")
+            if content is not None:
+                response += content
+                paragraph += content
+                if "\n" in paragraph:
+                    await websocket.send_json({"type": "report", "output": paragraph})
+                    paragraph = ""
+
     print(f"streaming response complete")
     return response
 
