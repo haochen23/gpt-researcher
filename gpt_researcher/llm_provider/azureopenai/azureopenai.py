@@ -21,11 +21,11 @@ class AzureOpenAIProvider:
 
     def __init__(
         self,
-        deployment_name,
+        model,
         temperature,
         max_tokens
     ):
-        self.deployment_name = deployment_name
+        self.deployment_name = model
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.api_key = self.get_api_key()
